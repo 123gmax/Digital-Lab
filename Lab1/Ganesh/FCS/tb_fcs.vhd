@@ -5,22 +5,22 @@ entity tb_fcs is
 end tb_fcs;
 
 architecture beh of tb_fcs is
-component fc_system
+component fc_system_v4
 port(
           flight_no : in std_logic_vector(2 downto 0);
           request:    in std_logic;
 	  reset,clk : in std_logic;
-	  clk_out : out std_logic;--For demo only
+	  clk3_out,clk10_out : out std_logic;--For demo only
 	  grant,denied: out std_logic
 	  );
 end component;
 
 signal flight_no_in: std_logic_vector(2 downto 0);
-signal request_in,clk_in,reset_in,denied_out,grant_out,clk_out_out: std_logic;
+signal request_in,clk_in,reset_in,denied_out,grant_out,clk3_out_out,clk10_out_out: std_logic;
 signal clk_period: time :=10 ns;
 begin
-   uut:fc_system
-   port map(flight_no=>flight_no_in,request=>request_in,reset=>reset_in,clk=>clk_in,clk_out=>clk_out_out,grant=>grant_out,denied=>denied_out);
+   uut:fc_system_v4
+   port map(flight_no=>flight_no_in,request=>request_in,reset=>reset_in,clk=>clk_in,clk3_out=>clk3_out_out,clk10_out=>clk10_out_out,grant=>grant_out,denied=>denied_out);
    
    clock_process:process
    begin

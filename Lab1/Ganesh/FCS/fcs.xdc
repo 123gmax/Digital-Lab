@@ -3,10 +3,12 @@
 # ---------------------------------------------------------------------------- 
 set_property LOC T22 [get_ports {grant}];  # "LD0"
 set_property LOC T21 [get_ports {denied}];  # "LD1"
-set_property LOC U22 [get_ports {clk_out}];  # "LD2"
+set_property LOC U22 [get_ports {clk3_out}];  # "LD2"
+set_property PACKAGE_PIN U21 [get_ports {clk10_out}];  # "LD3"
 set_property IOSTANDARD LVCMOS33 [get_ports {grant}]; #3.3V
 set_property IOSTANDARD LVCMOS33 [get_ports {denied}]; #3.3V
-set_property IOSTANDARD LVCMOS33 [get_ports {clk_out}]; #3.3V
+set_property IOSTANDARD LVCMOS33 [get_ports {clk3_out}]; #3.3V
+set_property IOSTANDARD LVCMOS33 [get_ports {clk10_out}]; #3.3V
 
 # ----------------------------------------------------------------------------
 # User DIP Switches - Bank 35
