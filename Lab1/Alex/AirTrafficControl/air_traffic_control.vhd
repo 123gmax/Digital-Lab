@@ -44,8 +44,7 @@ architecture Behavioral of air_traffic_control is
     signal clk_1ms : STD_LOGIC := '0';
     signal jet_type : STD_LOGIC := '0';
     signal clk_count : integer range 0 to 50000 := 0; 
-    signal current_state : integer range 0 to 4 := 0;
-    signal next_state : integer range 0 to 4 := 0;
+    signal current_state, next_state : integer range 0 to 4 := 0;
     signal timer_3s : integer range 0 to 3000 := 0;
     signal timer_heavy : integer range -10000 to 10000 := 0;
     constant c_3s : integer := 3000;
@@ -77,7 +76,7 @@ begin
     end process;
 
 --Runway State Process
-    process(clk_1ms)
+    process(clk_1ms, current_state, timer_3s, timer_heavy)
     begin
         if(rising_edge(clk_1ms)) then
             case current_state is
@@ -89,6 +88,8 @@ begin
                         else
                             next_state <= 2;
                         end if;
+                    else
+                        next_state <= 0;
                     end if;
                 when 1 => -- HEAVY TURBULENCE DELAY
                     if(REQ = '1') then
@@ -101,6 +102,7 @@ begin
                     else
                         if(timer_heavy > 0) then
                             timer_heavy <= timer_heavy - 1;
+                            next_state <= 1;
                         else
                             next_state <= 0;
                         end if;
@@ -108,12 +110,14 @@ begin
                 when 2 => --LIGHT TAKE_OFF
                     if(timer_3s > 0) then
                         timer_3s <= timer_3s - 1;
+                        next_state <= 2;
                     else
                         next_state <= 0;
                     end if;
                 when 3 => --HEAVY TAKE-OFF
                     if(timer_3s > 0) then
                         timer_3s <= timer_3s - 1;
+                        next_state <= 3;
                     else
                         timer_heavy <= c_7s;
                         next_state <= 1;
@@ -121,6 +125,7 @@ begin
                 when 4 => --DENIED
                     if(timer_3s > 0) then
                         timer_3s <= timer_3s - 1;
+                        next_state <= 4;
                     else
                         timer_heavy <= timer_heavy - c_3s;
                         if(timer_heavy > 0) then
