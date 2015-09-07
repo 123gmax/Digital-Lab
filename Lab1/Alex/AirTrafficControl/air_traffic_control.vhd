@@ -48,6 +48,9 @@ architecture Behavioral of air_traffic_control is
     signal next_state : integer range 0 to 4 := 0;
     signal timer_3s : integer range 0 to 3000 := 0;
     signal timer_heavy : integer range -10000 to 10000 := 0;
+    constant c_3s : integer := 3000;
+    constant c_7s : integer := 7000;
+    
 begin
 
 --Clock divider process
@@ -62,12 +65,13 @@ begin
          end if;
        end if;
    end process;
+--    clk_1ms <= CLK; --This should be used for simulation purposes instead of the clock divider process.
 
 --Jet classification process
     process(PLANE_TYPE)
     begin
         case PLANE_TYPE is
-            when X"1" | X"3" | X"7" => jet_type <= '1'; --Heavy Jet
+            when "001" | "011" | "111" => jet_type <= '1'; --Heavy Jet: 1, 3, 7
             when others => jet_type <= '0';             --Light Jet
         end case;
     end process;
@@ -79,7 +83,7 @@ begin
             case current_state is
                 when 0 => --RUNWAY READY
                     if(REQ = '1') then
-                        timer_3s <= 3000;
+                        timer_3s <= c_3s;
                         if(jet_type = '1') then
                             next_state <= 3;
                         else
@@ -88,7 +92,7 @@ begin
                     end if;
                 when 1 => -- HEAVY TURBULENCE DELAY
                     if(REQ = '1') then
-                        timer_3s <= 3000;
+                        timer_3s <= c_3s;
                         if(jet_type = '1') then
                             next_state <= 3;
                         else
@@ -111,14 +115,14 @@ begin
                     if(timer_3s > 0) then
                         timer_3s <= timer_3s - 1;
                     else
-                        timer_heavy <= 7000;
+                        timer_heavy <= c_7s;
                         next_state <= 1;
                     end if;
                 when 4 => --DENIED
                     if(timer_3s > 0) then
                         timer_3s <= timer_3s - 1;
                     else
-                        timer_heavy <= timer_heavy - 3000;
+                        timer_heavy <= timer_heavy - c_3s;
                         if(timer_heavy > 0) then
                             next_state <= 1;
                         else
