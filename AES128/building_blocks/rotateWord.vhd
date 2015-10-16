@@ -18,26 +18,25 @@
 -- 
 ----------------------------------------------------------------------------------
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity rotateWord is
-    Port ( wordIn : in STD_LOGIC_VECTOR (31 downto 0);
+    Port ( CLK : in STD_LOGIC;
+           RESET : in STD_LOGIC;
+           wordIn : in STD_LOGIC_VECTOR (31 downto 0);
            wordOut : out STD_LOGIC_VECTOR (31 downto 0));
 end rotateWord;
 
 architecture Behavioral of rotateWord is
 
 begin
-    wordOut <= wordIn(23 downto 0) & wordIn(31 downto 24);
+    process(CLK, RESET, wordIn)
+    begin
+        if RESET = '1' then
+            wordOut <= (others => '0');
+        elsif rising_edge(CLK) then
+            wordOut <= wordIn(23 downto 0) & wordIn(31 downto 24);
+        end if;
+    end process;
 end Behavioral;
