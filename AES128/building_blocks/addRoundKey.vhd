@@ -22,17 +22,10 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity addRoundKey is
-    Port ( wordIn : in STD_LOGIC_VECTOR (31 downto 0);
+    Port ( CLK : in STD_LOGIC;
+           RESET : in STD_LOGIC;
+           wordIn : in STD_LOGIC_VECTOR (31 downto 0);
            keyIn : in STD_LOGIC_VECTOR (31 downto 0);
            wordOut : out STD_LOGIC_VECTOR (31 downto 0));
 end addRoundKey;
@@ -40,5 +33,12 @@ end addRoundKey;
 architecture Behavioral of addRoundKey is
 
 begin
-    wordOut <= wordIn XOR keyIn;
+    process(CLK, RESET, wordIn, keyIn)
+    begin
+        if RESET = '1' then
+            wordOut <= (others => '0');
+        elsif rising_edge(CLK) then
+            wordOut <= wordIn XOR keyIn;
+        end if;
+    end process;
 end Behavioral;
