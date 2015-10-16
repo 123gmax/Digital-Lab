@@ -1120,7 +1120,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity invMixColumn is
-    Port ( wordIn : in STD_LOGIC_VECTOR (31 downto 0);
+    Port ( CLK : in STD_LOGIC;
+           RESET : in STD_LOGIC;
+           wordIn : in STD_LOGIC_VECTOR (31 downto 0);
            wordOut : out STD_LOGIC_VECTOR (31 downto 0));
 end invMixColumn;
 
@@ -1175,9 +1177,15 @@ begin
     t2x14: x14 port map(byteIn => t2_x1, byteOut => t2_x14);
     t3x14: x14 port map(byteIn => t3_x1, byteOut => t3_x14);
 
-    wordOut(31 downto 24) <= t0_x14 XOR t1_x11 XOR t2_x13 XOR t3_x9;
-    wordOut(23 downto 16) <= t0_x9  XOR t1_x14 XOR t2_x11 XOR t3_x13;
-    wordOut(15 downto 8)  <= t0_x13 XOR t1_x9  XOR t2_x14 XOR t3_x11;
-    wordOut(7 downto 0)   <= t0_x11 XOR t1_x13 XOR t2_x9  XOR t3_x14;
-
+    process(CLK, RESET, wordIn)
+    begin
+        if RESET = '1' then
+            wordOut <= (others => '0');
+        elsif rising_edge(CLK) then
+            wordOut(31 downto 24) <= t0_x14 XOR t1_x11 XOR t2_x13 XOR t3_x9;
+            wordOut(23 downto 16) <= t0_x9  XOR t1_x14 XOR t2_x11 XOR t3_x13;
+            wordOut(15 downto 8)  <= t0_x13 XOR t1_x9  XOR t2_x14 XOR t3_x11;
+            wordOut(7 downto 0)   <= t0_x11 XOR t1_x13 XOR t2_x9  XOR t3_x14;
+        end if;
+    end process;
 end Behavioral;
