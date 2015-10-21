@@ -26,6 +26,8 @@ entity keyExpansion is
            RESET : in STD_LOGIC;
            START : in STD_LOGIC;
            cipherKey : in STD_LOGIC_VECTOR (127 downto 0);
+           DONE : out STD_LOGIC;
+           IDLE : out STD_LOGIC;
            expandedKey : out STD_LOGIC_VECTOR (1407 downto 0));
            
     function rCon (expansionRound : in natural)
@@ -392,4 +394,12 @@ begin
     end process;
     state <= nextState;
     expandedKey <= expandedKeyTemp;
+    
+    with state select
+        DONE <= '1' when Done,
+        DONE <= '0' when others;
+        
+    with state select
+        IDLE <= '1' when Idle,
+        IDLE <= '0' when others;
 end Behavioral;
