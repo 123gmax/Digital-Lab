@@ -28,6 +28,7 @@ entity keyExpansion is
            cipherKey : in STD_LOGIC_VECTOR (127 downto 0);
            DONE : out STD_LOGIC;
            IDLE : out STD_LOGIC;
+           MUTATING : out STD_LOGIC;
            expandedKey : out STD_LOGIC_VECTOR (1407 downto 0));
            
     function rCon (expansionRound : in natural)
@@ -330,20 +331,18 @@ entity keyExpansion is
 end keyExpansion;
 
 architecture Behavioral of keyExpansion is
-    type STATE_TYPE is (generatorIdle, getWord, mutateWord, xorWord, generatorDone);
+    type STATE_TYPE is (generatorIdle, getWord, mutateRotWord, mutateSubWord, mutateXorRcon, xorWord, generatorDone);
     signal state, nextState : STATE_TYPE := generatorIdle;
     signal expandedKeyTemp : STD_LOGIC_VECTOR(1407 downto 0);
     signal tempWord : STD_LOGIC_VECTOR(31 downto 0);
-    
 begin
     process(CLK, RESET, START)
-        variable expansionRound : natural range 0 to 11;
+        variable expansionRound : natural range 0 to 10;
         variable nextByte : natural range 0 to 176;
-        variable tickCount : natural range 0 to 10;
     begin
         DONE <= '0';
         IDLE <= '0';
-        
+        MUTATING <= '0';
         if RESET = '1' then
             nextState <= generatorIdle;
         elsif rising_edge(CLK) then
@@ -354,33 +353,27 @@ begin
                         expandedKeyTemp(1407 downto 1280) <= cipherKey;
                         expansionRound := 1;
                         nextByte := 16;
-                        tickCount := 0;
                         nextState <= getWord;
                     else
                         nextState <= generatorIdle;
                     end if;
                 when getWord =>
                     tempWord <= expandedKeyTemp(1407 - (nextByte-4)*8 downto 1407 - nextByte*8 + 1);
-                    nextState <= mutateWord;
-                when mutateWord =>
+                    nextState <= mutateRotWord;
+                when mutateRotWord =>
                     nextState <= xorWord;
                     if (nextByte mod 16 = 0) then
-                        case tickCount is
-                            when 0 =>
-                                tempWord <= rotateWord(tempWord);
-                                tickCount := tickCount + 1;
-                                nextState <= mutateWord;
-                            when 1 =>
-                                tempWord <= subWord(tempWord);
-                                tickCount := tickCount + 1;
-                                nextState <= mutateWord;
-                            when 2 =>
-                                tempWord(31 downto 24) <= tempWord(31 downto 24) XOR rCon(expansionRound);
-                                expansionRound := expansionRound + 1;
-                            when others =>
-                                nextState <= generatorIdle;
-                        end case;
+                        MUTATING <= '1';
+                        tempWord <= rotateWord(tempWord);
+                        nextState <= mutateSubWord;
                     end if;
+                when mutateSubWord =>
+                    tempWord <= subWord(tempWord);
+                    nextState <= mutateXorRcon;
+                when mutateXorRcon =>
+                    tempWord(31 downto 24) <= tempWord(31 downto 24) XOR rCon(expansionRound);
+                    expansionRound := expansionRound + 1;
+                    nextState <= xorWord;
                 when xorWord =>
                     expandedKeyTemp(1407 - nextByte*8 downto 1407 - (nextByte + 4)*8 + 1) <= tempWord XOR expandedKeyTemp(1407 - (nextByte - 16)*8 downto 1407 - (nextByte - 12)*8 + 1);
                     nextByte := nextByte + 4;
