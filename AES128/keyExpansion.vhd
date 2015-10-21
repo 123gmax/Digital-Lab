@@ -330,8 +330,8 @@ entity keyExpansion is
 end keyExpansion;
 
 architecture Behavioral of keyExpansion is
-    type STATE_TYPE is (Idle, getWord, mutateWord, xorWord, Done);
-    signal state, nextState : STATE_TYPE := Idle;
+    type STATE_TYPE is (generatorIdle, getWord, mutateWord, xorWord, generatorDone);
+    signal state, nextState : STATE_TYPE := generatorIdle;
     signal expandedKeyTemp : STD_LOGIC_VECTOR(1407 downto 0);
     signal tempWord : STD_LOGIC_VECTOR(31 downto 0);
     
@@ -341,11 +341,15 @@ begin
         variable nextByte : natural range 0 to 176;
         variable tickCount : natural range 0 to 10;
     begin
+        DONE <= '0';
+        IDLE <= '0';
+        
         if RESET = '1' then
-            nextState <= Idle;
+            nextState <= generatorIdle;
         elsif rising_edge(CLK) then
             case state is
-                when Idle =>
+                when generatorIdle =>
+                    IDLE <= '1';
                     if (START = '1') then
                         expandedKeyTemp(1407 downto 1280) <= cipherKey;
                         expansionRound := 1;
@@ -353,7 +357,7 @@ begin
                         tickCount := 0;
                         nextState <= getWord;
                     else
-                        nextState <= Idle;
+                        nextState <= generatorIdle;
                     end if;
                 when getWord =>
                     tempWord <= expandedKeyTemp(1407 - (nextByte-4)*8 downto 1407 - nextByte*8 + 1);
@@ -374,32 +378,25 @@ begin
                                 tempWord(31 downto 24) <= tempWord(31 downto 24) XOR rCon(expansionRound);
                                 expansionRound := expansionRound + 1;
                             when others =>
-                                nextState <= Idle;
+                                nextState <= generatorIdle;
                         end case;
                     end if;
                 when xorWord =>
                     expandedKeyTemp(1407 - nextByte*8 downto 1407 - (nextByte + 4)*8 + 1) <= tempWord XOR expandedKeyTemp(1407 - (nextByte - 16)*8 downto 1407 - (nextByte - 12)*8 + 1);
                     nextByte := nextByte + 4;
                     if (nextByte >= 176) then
-                        nextState <= Done;
+                        nextState <= generatorDone;
                     else
                         nextState <= getWord;
                     end if;
-                when Done =>
-                    nextState <= Done;
+                when generatorDone =>
+                    nextState <= generatorDone;
+                    DONE <= '1';
                 when others =>
-                    nextState <= Idle;
+                    nextState <= generatorIdle;
             end case;
         end if;
     end process;
     state <= nextState;
     expandedKey <= expandedKeyTemp;
-    
-    with state select
-        DONE <= '1' when Done,
-        DONE <= '0' when others;
-        
-    with state select
-        IDLE <= '1' when Idle,
-        IDLE <= '0' when others;
 end Behavioral;
