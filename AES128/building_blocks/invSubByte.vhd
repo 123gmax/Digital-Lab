@@ -23,9 +23,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity invSubByte is
-    Port ( CLK : in STD_LOGIC;
-           RESET : in STD_LOGIC;
-           byteIn : in STD_LOGIC_VECTOR(7 downto 0);
+    Port ( byteIn : in STD_LOGIC_VECTOR(7 downto 0);
            byteOut : out STD_LOGIC_VECTOR(7 downto 0));
 end invSubByte;
 
