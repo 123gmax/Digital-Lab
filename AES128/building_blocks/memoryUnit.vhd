@@ -31,18 +31,21 @@ entity memoryUnit is
            wordOut : out STD_LOGIC_VECTOR (31 downto 0));
 end memoryUnit;
 
-architecture Behavioral of memoryUnit is
-
+architecture Behavioral of memoryUnit is 
 begin
     process(CLK, RESET, SELB, wordAIn, wordBin)
+       variable wordAMemory, wordBMemory : STD_LOGIC_VECTOR(31 downto 0) := (others => '0');
     begin
         if RESET = '1' then
-            wordOut <= (others => '0');
+            wordAMemory := (others => '0');
+            wordBMemory := (others => '0');
         elsif rising_edge(CLK) then
+            wordAMemory := wordAIn;
+            wordBMemory := wordBIn;
             if SELB = '0' then
-                wordOut <= wordAIn;
+                wordOut <= wordAMemory;
             else
-                wordOut <= wordBIn;
+                wordOut <= wordBMemory;
             end if;
         end if;
     end process;
