@@ -27,7 +27,9 @@ end invSubByte_tb;
 
 architecture Behavioral of invSubByte_tb is
     component invSubByte is
-        Port ( byteIn : in STD_LOGIC_VECTOR(7 downto 0);
+        Port ( CLK : in STD_LOGIC;
+               RESET : in STD_LOGIC;
+               byteIn : in STD_LOGIC_VECTOR(7 downto 0);
                byteOut : out STD_LOGIC_VECTOR(7 downto 0));
     end component;
     
