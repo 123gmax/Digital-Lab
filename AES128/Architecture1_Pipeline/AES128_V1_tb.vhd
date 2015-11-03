@@ -86,7 +86,8 @@ begin
         WORD_IN <= x"1A02D73A";
         wait for clk_period;
         
-        --It takes 69 clock cycles for the first decrypted word to exit the pipe. 
+        --It takes 69 clock cycles for the first decrypted word to exit the pipe.
+        --For this test bench, the first valid word output occurs at the rising edge at 427ns. 
         WORD_IN <= x"00000000";
         wait for 10*clk_period;
         WORD_IN <= x"00000001";
