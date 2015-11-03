@@ -378,13 +378,13 @@ begin
                     expandedKeyTemp(1407 - nextByte*8 downto 1407 - (nextByte + 4)*8 + 1) <= tempWord XOR expandedKeyTemp(1407 - (nextByte - 16)*8 downto 1407 - (nextByte - 12)*8 + 1);
                     nextByte := nextByte + 4;
                     if (nextByte >= 176) then
+                        DONE <= '1';
                         nextState <= generatorDone;
                     else
                         nextState <= getWord;
                     end if;
                 when generatorDone =>
                     nextState <= generatorDone;
-                    DONE <= '1';
                 when others =>
                     nextState <= generatorIdle;
             end case;
