@@ -45,6 +45,7 @@ begin
         if RESET = '1' then
             state := INITIAL_STATE;
         elsif rising_edge(CLK) then
+            loadSourceSelector <= '0';
             if ENABLE = '1' then
                 if (state = ENABLE_STATE) then
                     loadSourceSelector <= '1';
@@ -66,6 +67,7 @@ begin
             if RESET = '1' then
                 state := INITIAL_STATE;
             elsif rising_edge(CLK) then
+                addRoundKeySelector2 <= "10";  --NOTE: THIS SHOULD ALWAYS BE THE VALUE OUTPUT BY THE PREVIOUS TO INITIAL STATE. IT SHOULD BE MANUALLY UPDATED
                 if ENABLE = '1' then
                     case state is
                         when 3 => addRoundKeySelector2 <= "00";
@@ -83,13 +85,14 @@ begin
             end if;
         end process;
     
-    --The initial addRoundKeySelector always has four states, since it occurs before the pipeline delay.
+    --The initial addRoundKeySelector always has four states instead of six, since it occurs before the pipeline delay.
     addRoundKeySelectorProcess1 : process(CLK, RESET, ENABLE)
-        variable state : natural range 0 to 3 := 3;
+        variable state : natural range 0 to 3 := 2;
     begin
         if RESET = '1' then
             state := 3;
         elsif rising_edge(CLK) then
+            addRoundKeySelector1 <= "11";  --NOTE: THIS SHOULD ALWAYS BE THE VALUE OUTPUT BY THE PREVIOUS TO INITIAL STATE. IT SHOULD BE MANUALLY UPDATED
             if ENABLE = '1' then
                 case state is
                     when 3 => addRoundKeySelector1 <= "11";
